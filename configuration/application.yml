@@ -1,0 +1,3 @@
+gcloud:
+    project-id: 'scalability-223413'
+    subscription-name: 'conversion'

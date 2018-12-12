@@ -1,12 +1,13 @@
 import time
 import logging
+import json
 
 from google.cloud import pubsub_v1
 
 
-class VideoConversionMessaging(object):
+class ConversionMessaging(object):
 
-    def __init__(self, _config_):
+    def __init__(self, _config_, database_service):
         project_id = _config_.get_gcloud_project_id()
         subscription_name = _config_.get_gcloud_subscription_name()
 
@@ -14,7 +15,9 @@ class VideoConversionMessaging(object):
         subscription_path = subscriber.subscription_path(project_id, subscription_name)
 
         def callback(message):
-            logging.info('Received message: {}'.format(message))
+            logging.info('Received message: {}'.format(message.data))
+            received_data = json.loads(message.data.decode('utf-8'))
+            database_service.update_item_status(received_data['uuid'], 'converted')
             message.ack()
 
         subscriber.subscribe(subscription_path, callback=callback)

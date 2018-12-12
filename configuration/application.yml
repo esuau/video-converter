@@ -1,3 +1,8 @@
 gcloud:
     project-id: 'scalability-223413'
     subscription-name: 'conversion'
+
+aws:
+    dynamodb:
+        name: 'dynamodb'
+        table: 'video'

@@ -20,3 +20,9 @@ class Configuration(object):
 
     def get_gcloud_subscription_name(self):
         return self.configuration_data['gcloud']['subscription-name']
+
+    def get_database_name(self):
+        return self.configuration_data['aws']['dynamodb']['name']
+
+    def get_database_table(self):
+        return self.configuration_data['aws']['dynamodb']['table']

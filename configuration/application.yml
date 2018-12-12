@@ -7,3 +7,6 @@ aws:
         name: 'dynamodb'
         table: 'video'
         region: 'eu-west-3'
+    s3:
+        name: 'edu.esipe.i3.ezipflix'
+        region: 'eu-west-3'

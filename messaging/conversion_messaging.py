@@ -7,7 +7,7 @@ from google.cloud import pubsub_v1
 
 class ConversionMessaging(object):
 
-    def __init__(self, _config_, database_service):
+    def __init__(self, _config_, database_service, conversion_service):
         project_id = _config_.get_gcloud_project_id()
         subscription_name = _config_.get_gcloud_subscription_name()
 
@@ -17,6 +17,7 @@ class ConversionMessaging(object):
         def callback(message):
             logging.info('Received message: {}'.format(message.data))
             received_data = json.loads(message.data.decode('utf-8'))
+            conversion_service.convert_video(received_data['originPath'])
             database_service.update_item_status(received_data['uuid'], 'converted')
             message.ack()
 

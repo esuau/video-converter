@@ -29,3 +29,9 @@ class Configuration(object):
 
     def get_database_region(self):
         return self.configuration_data['aws']['dynamodb']['region']
+
+    def get_bucket_name(self):
+        return self.configuration_data['aws']['s3']['name']
+
+    def get_bucket_region(self):
+        return self.configuration_data['aws']['s3']['region']

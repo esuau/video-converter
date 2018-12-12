@@ -6,3 +6,4 @@ aws:
     dynamodb:
         name: 'dynamodb'
         table: 'video'
+        region: 'eu-west-3'

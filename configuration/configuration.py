@@ -26,3 +26,6 @@ class Configuration(object):
 
     def get_database_table(self):
         return self.configuration_data['aws']['dynamodb']['table']
+
+    def get_database_region(self):
+        return self.configuration_data['aws']['dynamodb']['region']

@@ -18,7 +18,7 @@ class DecimalEncoder(json.JSONEncoder):
 class ConversionDatabase(object):
 
     def __init__(self, _config_):
-        dynamodb = boto3.resource(_config_.get_database_name(), region_name='eu-west-3')
+        dynamodb = boto3.resource(_config_.get_database_name(), region_name=_config_.get_database_region())
         self.table = dynamodb.Table(_config_.get_database_table())
         logging.info(self.table.creation_date_time)
 
@@ -32,7 +32,7 @@ class ConversionDatabase(object):
             )
             logging.info(response)
         except ClientError as e:
-            logging.error("Error when updating item: ", e)
+            logging.error('Error when updating item: ', e)
         else:
-            logging.info("Update item status succeeded: ")
+            logging.info('Update item status succeeded: ')
             logging.info(json.dumps(response, indent=4, cls=DecimalEncoder))

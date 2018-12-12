@@ -1,5 +1,18 @@
 import logging
 import boto3
+from botocore.exceptions import ClientError
+import json
+import decimal
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            if o % 1 > 0:
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
 
 
 class ConversionDatabase(object):
@@ -10,11 +23,16 @@ class ConversionDatabase(object):
         logging.info(self.table.creation_date_time)
 
     def update_item_status(self, _id_, _status_):
-        self.table.update_item(
-            Key={'uuid': _id_},
-            UpdateExpression='SET video_status = :status',
-            ExpressionAttributeValues={':status': _status_}
-        )
-        response = self.table.get_item(Key={{'uuid': _id_}})
-        item = response['Item']
-        logging.info(item)
+        try:
+            response = self.table.update_item(
+                Key={'uuid': _id_},
+                UpdateExpression='set video_status = :status',
+                ExpressionAttributeValues={':status': _status_},
+                ReturnValues="UPDATED_NEW"
+            )
+            logging.info(response)
+        except ClientError as e:
+            logging.error("Error when updating item: ", e)
+        else:
+            logging.info("Update item status succeeded: ")
+            logging.info(json.dumps(response, indent=4, cls=DecimalEncoder))

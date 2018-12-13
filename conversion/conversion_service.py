@@ -1,8 +1,10 @@
 import logging
 import boto3
 import ffmpy
+import os
+import shutil
+import tempfile
 
-from random import randint
 from botocore.exceptions import ClientError
 
 
@@ -14,24 +16,24 @@ class ConversionService(object):
         self.configuration = _config_
 
     def convert_video(self, _path_):
-        key = self.get_last_split(_path_, '/')
-        extension = self.get_last_split(key, '.')
-        n = str(randint(0, 100))
+        extension = self.get_last_split(_path_, '.')
+        tempdir = tempfile.mkdtemp()
+        input_file = os.path.join(tempdir, 'input.' + extension)
+        output_file = os.path.join(tempdir, 'output.avi')
         try:
-            self.s3.Bucket(self.configuration.get_bucket_name()).download_file(key, 'local_temp_' + n + '.' + extension)
-            ff = ffmpy.FFmpeg(
-                executable='C:\\ffmpeg\\bin\\ffmpeg.exe',
-                inputs={'local_temp_' + n + '.' + extension: None},
-                outputs={'output_temp_' + n + '.avi': '-y -vcodec mpeg4 -b 4000k -acodec mp2 -ab 320k'}
-            )
-            ff.run()
-            self.client.upload_file('output_temp_' + n + '.avi', self.configuration.get_bucket_name(),
-                                    key.replace(extension, 'avi'))
+            self.s3.Bucket(self.configuration.get_bucket_name()).download_file(_path_, input_file)
         except ClientError as e:
             if e.response['Error']['Code'] == "404":
                 logging.error('The object does not exist.')
             else:
                 raise
+        ff = ffmpy.FFmpeg(
+            inputs={input_file: None},
+            outputs={output_file: '-y -vcodec mpeg4 -b 4000k -acodec mp2 -ab 320k'}
+        )
+        ff.run()
+        self.client.upload_file(output_file, self.configuration.get_bucket_name(), _path_.replace(extension, 'avi'))
+        shutil.rmtree(tempdir)
 
     @staticmethod
     def get_last_split(_string_, _delimiter_):

@@ -31,6 +31,7 @@ class ConversionMessaging(object):
     def process_message(self, _data_):
         origin_path = _data_['originPath']
         target_path = _data_['targetPath']
+        self.database_service.update_item_status(_data_['uuid'], 'in progress')
         t0 = time.time()
         self.conversion_service.convert_video(origin_path, target_path)
         t1 = time.time()

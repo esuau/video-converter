@@ -36,3 +36,19 @@ class ConversionDatabase(object):
         else:
             logging.info('Update item status succeeded: ')
             logging.info(json.dumps(response, indent=4, cls=DecimalEncoder))
+
+    def set_conversion_time(self, _id_, _time_):
+        try:
+            response = self.table.update_item(
+                Key={'uuid': _id_},
+                UpdateExpression='set conversion_time = :time',
+                ExpressionAttributeValues={':time': _time_},
+                ReturnValues="UPDATED_NEW"
+            )
+            logging.info(response)
+        except ClientError as e:
+            logging.error('Error when updating item: ', e)
+        else:
+            logging.info('Update item status succeeded: ')
+            logging.info(json.dumps(response, indent=4, cls=DecimalEncoder))
+

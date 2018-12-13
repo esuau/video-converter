@@ -17,8 +17,11 @@ class ConversionMessaging(object):
         def callback(message):
             logging.info('Received message: {}'.format(message.data))
             received_data = json.loads(message.data.decode('utf-8'))
+            t0 = time.time()
             conversion_service.convert_video(received_data['originPath'])
+            t1 = time.time()
             database_service.update_item_status(received_data['uuid'], 'converted')
+            database_service.set_conversion_time(received_data['uuid'], str(t1 - t0))
             message.ack()
 
         subscriber.subscribe(subscription_path, callback=callback)

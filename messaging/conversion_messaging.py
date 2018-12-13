@@ -33,7 +33,11 @@ class ConversionMessaging(object):
         target_path = _data_['targetPath']
         self.database_service.update_item_status(_data_['uuid'], 'in progress')
         t0 = time.time()
-        self.conversion_service.convert_video(origin_path, target_path)
+        try:
+            self.conversion_service.convert_video(origin_path, target_path)
+        except:
+            self.database_service.update_item_status(_data_['uuid'], 'aborted')
+            return
         t1 = time.time()
         self.database_service.update_item_status(_data_['uuid'], 'converted')
         self.database_service.set_conversion_time(_data_['uuid'], str(t1 - t0))

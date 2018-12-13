@@ -15,13 +15,13 @@ class ConversionService(object):
         self.client = boto3.client('s3')
         self.configuration = _config_
 
-    def convert_video(self, _path_):
-        extension = self.get_last_split(_path_, '.')
+    def convert_video(self, _origin_, _target_):
+        extension = self.get_last_split(_origin_, '.')
         tempdir = tempfile.mkdtemp()
         input_file = os.path.join(tempdir, 'input.' + extension)
         output_file = os.path.join(tempdir, 'output.avi')
         try:
-            self.s3.Bucket(self.configuration.get_bucket_name()).download_file(_path_, input_file)
+            self.s3.Bucket(self.configuration.get_bucket_name()).download_file(_origin_, input_file)
         except ClientError as e:
             if e.response['Error']['Code'] == "404":
                 logging.error('The object does not exist.')
@@ -32,7 +32,7 @@ class ConversionService(object):
             outputs={output_file: '-y -vcodec mpeg4 -b 4000k -acodec mp2 -ab 320k'}
         )
         ff.run()
-        self.client.upload_file(output_file, self.configuration.get_bucket_name(), _path_.replace(extension, 'avi'))
+        self.client.upload_file(output_file, self.configuration.get_bucket_name(), _target_)
         shutil.rmtree(tempdir)
 
     @staticmethod

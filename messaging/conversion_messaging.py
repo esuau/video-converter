@@ -8,6 +8,9 @@ from google.cloud import pubsub_v1
 class ConversionMessaging(object):
 
     def __init__(self, _config_, database_service, conversion_service):
+        self.database_service = database_service
+        self.conversion_service = conversion_service
+
         project_id = _config_.get_gcloud_project_id()
         subscription_name = _config_.get_gcloud_subscription_name()
 
@@ -16,12 +19,7 @@ class ConversionMessaging(object):
 
         def callback(message):
             logging.info('Received message: {}'.format(message.data))
-            received_data = json.loads(message.data.decode('utf-8'))
-            t0 = time.time()
-            conversion_service.convert_video(received_data['originPath'])
-            t1 = time.time()
-            database_service.update_item_status(received_data['uuid'], 'converted')
-            database_service.set_conversion_time(received_data['uuid'], str(t1 - t0))
+            self.process_message(json.loads(message.data.decode('utf-8')))
             message.ack()
 
         subscriber.subscribe(subscription_path, callback=callback)
@@ -29,3 +27,12 @@ class ConversionMessaging(object):
         logging.info('Listening for messages on {}'.format(subscription_path))
         while True:
             time.sleep(60)
+
+    def process_message(self, _data_):
+        origin_path = _data_['originPath']
+        target_path = _data_['targetPath']
+        t0 = time.time()
+        self.conversion_service.convert_video(origin_path, target_path)
+        t1 = time.time()
+        self.database_service.update_item_status(_data_['uuid'], 'converted')
+        self.database_service.set_conversion_time(_data_['uuid'], str(t1 - t0))

@@ -42,6 +42,10 @@ If every requirement is completed, you can run the project as shown below:
 python conversion_worker.py
 ```
 
+## UML component diagram
+
+![UML component diagram](docs/uml-components.png)
+
 ## Why DynamoDB
 
 **Reliability:**

@@ -41,3 +41,19 @@ If every requirement is completed, you can run the project as shown below:
 ```bash
 python conversion_worker.py
 ```
+
+## Why DynamoDB
+
+**Reliability:**
+ * Hosted on Amazon cloud
+ * Fully managed service
+ * \#2 rank in [DB-engines ranking](https://db-engines.com/en/ranking/document+store) of document stores
+ 
+**Functionality:**
+ * NoSQL (schema-free)
+ * Supports Java and Python
+ * Continuous backup over the last 35 days
+
+**Performance:**
+ * Single-digit millisecond responsiveness at any scale
+ * In memory cache reducing response time

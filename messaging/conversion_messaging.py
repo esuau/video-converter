@@ -16,17 +16,16 @@ class ConversionMessaging(object):
 
         subscriber = pubsub_v1.SubscriberClient()
         subscription_path = subscriber.subscription_path(project_id, subscription_name)
-
-        def callback(message):
-            logging.info('Received message: {}'.format(message.data))
-            self.process_message(json.loads(message.data.decode('utf-8')))
-            message.ack()
-
-        subscriber.subscribe(subscription_path, callback=callback)
+        subscriber.subscribe(subscription_path, callback=self.receive_message)
 
         logging.info('Listening for messages on {}'.format(subscription_path))
         while True:
             time.sleep(60)
+
+    def receive_message(self, message):
+        logging.info('Received message: {}'.format(message.data))
+        self.process_message(json.loads(message.data.decode('utf-8')))
+        message.ack()
 
     def process_message(self, _data_):
         origin_path = _data_['originPath']
